@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+	  <meta charset="UTF-8">
+	  <title>podcasts</title>
+	  <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+	  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	</head>
+	<body>
+		<canvas id="myChart" width="250" height="200"></canvas>
+		<script>
+			const genres = [
+			  'Sports',
+			  'Business',
+			  'Technology',
+			  'TV & Film',
+			  'Music',
+			  'Health & Fitness',
+			  'Leisure',
+			  'Society & Culture',
+			  'Podcasts',
+			  'Education',
+			  'True Crime',
+			  'Comedy',
+			  'News',
+			  'Non-Profit',
+			  'Professional',
+			  'College & High School',
+			  'Podcasting',
+			  'Places & Travel',
+			  'Religion & Spirituality',
+			  'Careers',
+			  'Management',
+			  'Books',
+			  'Design',
+			  'Kids & Family',
+			  'Investing',
+			  'Fitness',
+			  'Self-Help',
+			  'History',
+			  'Personal Journals',
+			  'Local',
+			  'Government',
+			  'Food',
+			  'Arts',
+			  'Fashion & Beauty',
+			  'Visual Arts',
+			  'Judaism',
+			  'Outdoor',
+			  'Medicine',
+			  'Video Games',
+			  'Hobbies',
+			  'Alternative Health',
+			  'Christianity',
+			  'Tech News',
+			  'Spirituality',
+			  'Amateur',
+			  'Language Learning',
+			  'Business News',
+			  'How To',
+			  'Training',
+			  'Philosophy',
+			  'Other Games',
+			  'Natural Sciences',
+			  'K-12',
+			  'Higher Education',
+			  'Fiction',
+			  'Parenting',
+			  'Entrepreneurship']
+
+			const totals = [
+			543, 502, 466, 411, 403, 397, 386, 381,
+			365, 333, 328, 320, 315, 301, 287, 287,
+			284, 283, 282, 282, 281, 278, 277, 269,
+			265, 265, 260, 239, 237, 234, 233, 228,
+			220, 218, 218, 216, 215, 215, 214, 208,
+			204, 201, 195, 195, 194, 192, 192, 187,
+			184, 184, 182, 178, 173, 163, 158, 155,
+			153]
+		
+			var ctx = document.getElementById('myChart').getContext('2d');
+			var chart = new Chart(ctx, {
+				// The type of chart we want to create
+				type: 'horizontalBar',
+
+				// The data for our dataset
+				data: {
+					labels: genres,
+					datasets: [{
+						label: 'Best Podcasts By Genre',
+						data: totals,//start empty
+        backgroundColor: 'rgba(10, 168, 196, 0.2)',
+        borderColor: 'rgba(10, 168, 196, 1)',
+        borderWidth: 1
+						
+					}]
+				},
+				
+
+				// Configuration options go here
+				options: {}
+			});
+		</script>
+	</body>
+</html>
