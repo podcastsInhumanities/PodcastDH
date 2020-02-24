@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+		<script
+			src="https://code.jquery.com/jquery-3.4.1.min.js"
+			integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+			crossorigin="anonymous">
+		</script>
+		<script>
+			const genres = {
+				139: "Technology",
+				140: "Technology",
+				127: "Technology",
+				143: "Technology",
+				163: "Technology",
+				136: "Technology",
+				164: "Technology",
+				130: "Technology",
+				129: "Technology",
+				111: "Education",
+				142: "Education",
+				144: "Education",
+				115: "Education",
+				113: "Education",
+				114: "Education",
+				178: "Education",
+				128: "Education",
+				116: "Education",
+				181: "Education",
+				107: "Science",
+				238: "Science",
+				222: "Science",
+				221: "Science",
+				242: "Science",
+				241: "Science",
+				110: "Science",
+				239: "Science",
+				237: "Science",
+				109: "Science",
+				108: "Science",
+				69: "Religion & Spirituality",
+				70: "Religion & Spirituality",
+				72: "Religion & Spirituality",
+				76: "Religion & Spirituality",
+				71: "Religion & Spirituality",
+				73: "Religion & Spirituality",
+				219: "Religion & Spirituality",
+				68: "TV & Film",
+				138: "TV & Film",
+				159: "TV & Film",
+				166: "TV & Film",
+				160: "TV & Film",
+				162: "TV & Film",
+				161: "TV & Film",
+				262: "TV & Film",
+				263: "TV & Film",
+				264: "TV & Film",
+				265: "TV & Film",
+				266: "TV & Film",
+				77: "Sports",
+				78: "Sports",
+				79: "Sports",
+				80: "Sports",
+				81: "Sports",
+				254: "Sports",
+				255: "Sports",
+				141: "Sports",
+				250: "Sports",
+				251: "Sports",
+				247: "Sports",
+				249: "Sports",
+				248: "Sports",
+				256: "Sports",
+				257: "Sports",
+				258: "Sports",
+				259: "Sports",
+				260: "Sports",
+				261: "Sports",
+				253: "Sports",
+			};
+		</script>
+
+		<style>
+			.loader {
+				margin-left: 338px;
+				border: 16px solid #f3f3f3;
+				border-radius: 50%;
+				border-top: 16px solid #3498db;
+				width: 120px;
+				height: 120px;
+				-webkit-animation: spin 2s linear infinite; /* Safari */
+				animation: spin 2s linear infinite;
+			}
+			
+			@keyframes spin {
+			0% { transform: rotate(0deg); }
+			100% { transform: rotate(360deg); }
+			}
+
+			.button {
+				background-color: #4CAF50; /* Green */
+				border: none;
+				color: white;
+				padding: 2px 12px;
+				text-align: center;
+				text-decoration: none;
+				display: inline-block;
+				font-size: 16px;
+				margin: 4px 2px;
+				-webkit-transition-duration: 0.4s; /* Safari */
+				transition-duration: 0.4s;
+				cursor: pointer;
+				background-color: #008CBA; 
+				color: white; 
+				border: 2px solid #008CBA;
+			}
+
+			.button:hover {
+				background-color: white;
+				color: #008CBA;
+			}
+		</style>
+
+		<script>
+			const maxCalls = 500;
+			httpRequest = new XMLHttpRequest();
+			const first = 'https://listen-api.listennotes.com/api/v2/search?q=';
+			const seconsd = '&sort_by_date=0&offset='
+			const third = '&only_in=title%2Cdescription';
+			let encodedKeyWord = '';
+			let counter;
+			let data;
+			let countries;
+
+			function getRandomColor() {
+				var letters = '0123456789ABCDEF';
+				var color = '#';
+				for (var i = 0; i < 6; i++) {
+					color += letters[Math.floor(Math.random() * 16)];
+				}
+				return color;
+			}
+
+			function getDataFromListenAPI(url, afterGettingData) {
+				httpRequest.onreadystatechange = afterGettingData;
+				httpRequest.open('GET', url, true);
+				httpRequest.responseType = 'json';
+				httpRequest.setRequestHeader('X-ListenAPI-Key', '3b4d510018c947b09ed063f697c53ce7');
+				httpRequest.send();
+			}
+
+			function getDataInLoop(offset) {
+				const url = first + encodedKeyWord + seconsd + offset + third;
+				getDataFromListenAPI(url, () => {
+					if (httpRequest.readyState === XMLHttpRequest.DONE && httpRequest.response) {
+						const currData = httpRequest.response;
+						console.log(currData);
+						data = data.concat(currData.results);
+						if (counter < maxCalls && currData && currData.next_offset != currData.total) {
+							counter++;
+							getDataInLoop(currData.next_offset);							
+						} else {
+							filter();
+						}
+					}
+				});
+			}
+
+			function createLoader() {
+  				$('#chart-container').append('<div class="loader"></div>');
+			}
+
+			function removeLoader() {
+				$('.loader').remove();
+			}
+
+			function getCountriesFromAPI(){
+				const countriesUrl = 'https://listen-api.listennotes.com/api/v2/regions';
+				getDataFromListenAPI(countriesUrl, () => {
+					if (httpRequest.readyState === XMLHttpRequest.DONE && httpRequest.response) {
+						countries = httpRequest.response.regions;
+						console.log(countries);
+					}
+				});
+			}
+
+			function createFilter() {
+				countriesFilter = data.filter()
+			}
+
+			function afterGotAllData(data) {
+				//here goes the code after all the API calls
+				console.log(data);
+				let years = convertDataToMapOfYears(data);
+				console.log(years);
+				removeLoader();
+				createChart(Object.keys(years), Object.values(years));
+			}
+
+			function onClick() {
+				resetChart();
+				createLoader();
+				const keyword = document.getElementById("textInput").value;
+				console.log(keyword);
+				encodedKeyWord = encodeURI(keyword);
+				data = [];
+				const offset = 0;
+				counter = 0;
+				getDataInLoop(0);
+			}
+
+			function convertDataToMapOfYears(data) {
+				let years = {};
+				let podcast;
+				for (podcast of data) {
+					let date = new Date(podcast.pub_date_ms);
+					const year = date.getFullYear();
+					years[year] = years[year] ? (years[year] + 1) : 1;
+				}
+				return years;
+			}
+
+			function resetChart() {
+				$('#myChart').remove();
+  				$('#chart-container').append('<canvas id="myChart"></canvas>');
+			}
+
+			function createChart(labels, data){
+				const keyword = document.getElementById("textInput").value;
+				console.log(labels);
+				console.log(data);
+				let backgroundColor = labels.map(()=> getRandomColor());
+				let borderColor = labels.map(()=> getRandomColor());
+				var ctx = document.getElementById('myChart').getContext('2d');
+				var chart = new Chart(ctx, {
+					// The type of chart we want to create
+					type: 'bar',
+
+					// The data for our dataset
+					data: {
+						labels: labels,
+						datasets: [{
+							label: 'podcasts about ' + keyword,
+							data: data,
+							backgroundColor: 'rgba(54, 162, 235, 0.2)',
+							borderColor: 'rgba(54, 162, 235, 1)',
+							borderWidth: 1
+									}]
+						},
+					// Configuration options go here
+					options: {
+						responsive: true,
+						scales: {
+							yAxes: [{
+								ticks: {
+                					beginAtZero: true
+            					}
+        					}]
+    					}
+					}
+				});
+			}
+
+			function filter() {
+				const filter = document.getElementById("genres").value;
+				let filteredData;
+				filteredData = data.filter((podcast) => {
+					return ( filter === "All" || podcast.genre_ids.find((genreId) => genres[genreId] === filter));
+				});
+				resetChart();
+				afterGotAllData(filteredData);
+				let a = 0;
+			}
+
+			function isContainGenre(podcast) {
+				return podcast.genre_ids.filter((genreId) => genres[genreId]).length;
+			}
+
+		</script>
+	</head>
+	<body>
+		<div>
+			<p>Please insert a keyword:</p>
+			<input id="textInput" type="text"/>
+			<button id="submitButton" class="button" onclick="onClick()">submit</button>
+			<label for="genres">Genre:</label>
+			<select id="genres" onchange="filter()">
+				<option value="All">All</option>
+				<option value="Technology">Technology</option>
+				<option value="Education">Education</option>
+				<option value="Science">Science</option>
+				<option value="Religion & Spirituality">Religion & Spirituality</option> 
+				<option value="TV & Film">TV & Film</option>
+				<option value="Sports">Sports</option>
+			</select>
+		</div>
+		<div id="chart-container" style="position: relative; height:600px; width:800px">
+			<canvas id="myChart"></canvas>
+		</div>
+
+		<script>
+			getCountriesFromAPI();
+			//trigger submit when Enter key clicked
+			$("#textInput").keyup(function(event) {
+				if (event.keyCode === 13) {
+					$("#submitButton").click();
+				}
+			});
+		</script>
+	</body>
+</html>
