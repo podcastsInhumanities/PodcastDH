@@ -12,6 +12,8 @@ Word Clouds
   - contains python scripts that builds the dataset of podcasts description and title for a spesific genre
   - scripts for creating the word cloud
 
- 
+Dynamic Topic Search
+  - contains the code for creating the dynamic chart that show various topics and their volume in the podcasts world during the years. 
+
 
 
